@@ -4,6 +4,7 @@ from backend.app.utils.validators import validate_file
 from backend.app.services.metadata_service import extract_metadata
 from backend.app.services.malware_scan import scan_file
 from backend.app.services.preprocessing_service import preprocess_image
+from backend.app.services.perceptual_hash_service import generate_perceptual_hashes
 import os
 import shutil
 
@@ -29,10 +30,10 @@ async def upload_file(file: UploadFile = File(...)):
         }
         
 
-    # GENERATE HASHES
     hashes = generate_file_hashes(file_path)
     metadata = extract_metadata(file_path)
     preprocessing = preprocess_image(file_path)
+    perceptual_hashes = generate_perceptual_hashes(file_path)
     print("HASHES =", hashes)
     print(type(hashes))
     
@@ -45,5 +46,6 @@ async def upload_file(file: UploadFile = File(...)):
     "md5": hashes["md5"],
     "malware_scan": scan_result,
     "metadata": metadata,
-    "preprocessing": preprocessing
+    "preprocessing": preprocessing,
+    "perceptual_hashes": perceptual_hashes
 }
