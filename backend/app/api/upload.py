@@ -2,6 +2,7 @@ from fastapi import APIRouter, UploadFile, File
 from backend.app.services.hash_service import generate_file_hashes
 from backend.app.utils.validators import validate_file
 from backend.app.services.metadata_service import extract_metadata
+from backend.app.services.malware_scan import scan_file
 import os
 import shutil
 
@@ -19,6 +20,14 @@ async def upload_file(file: UploadFile = File(...)):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
+    scan_result = scan_file(file_path)
+    if not scan_result["safe"]:
+        return {
+            "status": "rejected",
+            "reason": scan_result["message"]
+        }
+        
+
     # GENERATE HASHES
     hashes = generate_file_hashes(file_path)
     metadata = extract_metadata(file_path)
@@ -32,5 +41,6 @@ async def upload_file(file: UploadFile = File(...)):
     "status": "uploaded successfully",
     "sha256": hashes["sha256"],
     "md5": hashes["md5"],
+    "malware_scan": scan_result,
     "metadata": metadata
 }
