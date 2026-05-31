@@ -1,18 +1,24 @@
-import hashlib
+import subprocess
+import json
 
 
-def generate_file_hashes(file_path):
+def extract_metadata(file_path):
 
-    sha256 = hashlib.sha256()
-    md5 = hashlib.md5()
+    try:
 
-    with open(file_path, "rb") as f:
+        result = subprocess.run(
+            ["exiftool", "-j", file_path],
+            capture_output=True,
+            text=True
+        )
 
-        while chunk := f.read(4096):
-            sha256.update(chunk)
-            md5.update(chunk)
+        metadata = json.loads(result.stdout)
 
-    return {
-        "sha256": sha256.hexdigest(),
-        "md5": md5.hexdigest()
-    }
+        return metadata[0]
+
+    except Exception as e:
+
+        return {
+            "error": str(e)
+        }
+    

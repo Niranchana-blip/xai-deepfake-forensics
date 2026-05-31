@@ -1,47 +1,40 @@
-from fastapi import UploadFile, HTTPException
+from fastapi import HTTPException
+import os
 
-ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"]
-ALLOWED_VIDEO_TYPES = ["video/mp4", "video/quicktime"]
+ALLOWED_EXTENSIONS = {
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".mp4",
+    ".avi",
+    ".mov"
+}
 
-MAX_IMAGE_SIZE = 10 * 1024 * 1024      # 10 MB
-MAX_VIDEO_SIZE = 100 * 1024 * 1024     # 100 MB
+MAX_FILE_SIZE = 100 * 1024 * 1024  # 100 MB
 
 
-async def validate_file(file: UploadFile):
+def validate_file(file):
 
-    # CHECK FILE TYPE
-    if file.content_type not in (
-        ALLOWED_IMAGE_TYPES + ALLOWED_VIDEO_TYPES
-    ):
+    extension = os.path.splitext(file.filename)[1].lower()
+
+    if extension not in ALLOWED_EXTENSIONS:
         raise HTTPException(
             status_code=400,
             detail="Unsupported file type"
         )
 
-    # READ FILE CONTENT
-    contents = await file.read()
-
-    # GET FILE SIZE
-    file_size = len(contents)
-    print(file_size)
-
-    # RESET POINTER
+    file.file.seek(0, 2)
+    size = file.file.tell()
     file.file.seek(0)
 
-    # IMAGE SIZE CHECK
-    if file.content_type in ALLOWED_IMAGE_TYPES:
-        if file_size > MAX_IMAGE_SIZE:
-            raise HTTPException(
-                status_code=400,
-                detail="Image exceeds 10MB limit"
-            )
+    if size == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Empty file"
+        )
 
-    # VIDEO SIZE CHECK
-    if file.content_type in ALLOWED_VIDEO_TYPES:
-        if file_size > MAX_VIDEO_SIZE:
-            raise HTTPException(
-                status_code=400,
-                detail="Video exceeds 100MB limit"
-            )
-
-    return True
+    if size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail="File exceeds 100 MB limit"
+        )
