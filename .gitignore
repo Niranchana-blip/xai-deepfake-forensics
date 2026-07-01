@@ -4,5 +4,20 @@ __pycache__/
 .env
 .vscode/
 
+# Uploaded media
 backend/uploads/*
 !backend/uploads/.gitkeep
+
+# AI model files
+*.pth
+*.pt
+*.h5
+*.ckpt
+
+# Python cache
+*.pyo
+*.pyd
+
+# OS files
+.DS_Store
+Thumbs.db

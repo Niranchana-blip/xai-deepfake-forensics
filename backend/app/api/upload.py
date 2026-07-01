@@ -7,6 +7,7 @@ from backend.app.services.preprocessing_service import preprocess_image
 from backend.app.services.perceptual_hash_service import generate_perceptual_hashes
 from backend.app.services.metadata_risk_service import analyze_metadata_risk
 from backend.app.services.visual_forensics_services import analyze_image_visuals
+from backend.app.services.ai_detection_service import analyze_media
 import os
 import shutil
 
@@ -36,8 +37,10 @@ async def upload_file(file: UploadFile = File(...)):
     metadata = extract_metadata(file_path)
     metadata_risk = analyze_metadata_risk(metadata)
     preprocessing = preprocess_image(file_path)
+    processed_path = preprocessing["processed_file"]
     perceptual_hashes = generate_perceptual_hashes(file_path)
     visual_forensics = analyze_image_visuals(file_path)
+    ai_result = analyze_media(file_path)
     print("HASHES =", hashes)
     print(type(hashes))
     
@@ -53,5 +56,6 @@ async def upload_file(file: UploadFile = File(...)):
     "metadata_risk": metadata_risk,
     "preprocessing": preprocessing,
     "perceptual_hashes": perceptual_hashes,
-    "visual_forensics": visual_forensics
+    "visual_forensics": visual_forensics,
+    "ai_detection": ai_result
 }

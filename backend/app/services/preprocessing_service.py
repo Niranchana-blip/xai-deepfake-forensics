@@ -10,7 +10,8 @@ def preprocess_image(file_path):
 
     image = image.resize((224, 224))
 
-    processed_path = file_path.replace(".", "_processed.")
+    base, ext = os.path.splitext(file_path)
+    processed_path = f"{base}_processed{ext}"
 
     image.save(processed_path)
 
